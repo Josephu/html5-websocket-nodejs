@@ -1,18 +1,20 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script type='text/javascript' src="./json2.js"></script>
-<script type='text/javascript' src="./jquery.min.js"></script>
+<script type='text/javascript' src="http://ajax.cdnjs.com/ajax/libs/json2/20110223/json2.js"></script>
+<script type='text/javascript' src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
 <script type='text/javascript' src="./jquery.websocket.js?v=0.2.3"></script>
 </head>
 
 <body>
 
-<form id="submit_form" method="GET" action="http://svn.moko365.com:8080/">
+<form id="submit_form" method="GET" action="http://localhost:8080/">
 <input type="hidden" name="u" id="username" value="jollen" />
 <input id="text" type="text" name="m" value="Input message" />
-<button type="submit" id="submit">Send</button>
+<button type="submit" id="submit">Send by API</button>
 </form>
+<br>
+<button type="button" id="send_by_ws">Send by Websocket</button>
 
 <div id="message"></div>
 <div id="board"></div>
@@ -21,6 +23,7 @@
 $(document).ready(function(){
 	$("#message").createWebSocket();
  	$("#board").receiveWebSocket();
+    $("#send_by_ws").sendMessage();
 	initSubmitForm();
 });
 
@@ -38,7 +41,7 @@ var initSubmitForm = function () {
                 },
             });
             
-            return false;
+            return false;//回傳false才不會跳頁
         });
     };
 </script>

@@ -25,26 +25,23 @@ $.fn.sendMessage = function () {
 };
 
 $.fn.createWebSocket = function () {
-  if ("WebSocket" in window)
-  {
+  message = this
+  if ("WebSocket" in window){
      // Let us open a web socket
-     ws = new WebSocket("ws://svn.moko365.com:8080/start", ['echo-protocol']);
-     ws.onopen = function()
-     {
-	$(this).append("<h2>Done</h2>");
+     ws = new WebSocket("ws://localhost:8080/start", ['echo-protocol']);
+     ws.onopen = function(evt){
+        alert(evt);
+        $(message).html("<h3>Websocket Started</h3>");
      };
-
-     ws.onclose = function()
-     { 
+     ws.onclose = function(evt){ 
         // websocket is closed.
+        $(message).html("<h3>Websocket Closed</h3>");
      };
-     ws.onerror = function()
-     { 
-        $(this).html("<h1>error</h1>");
+     ws.onerror = function(evt){ 
+        $(message).html("<h3>Websocket Error</h3>");
      };
   }
-  else
-  {
+  else{
      // The browser doesn't support WebSocket
      alert("WebSocket NOT supported by your Browser!");
   }

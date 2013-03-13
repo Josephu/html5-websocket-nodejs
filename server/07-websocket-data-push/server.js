@@ -15,7 +15,7 @@ function start(route, handlers) {
     route(pathname, handlers, response, query, clients);
 
     response.writeHead(200, {"Content-Type": "text/plain"});
-    response.write("Hello World");
+    response.write("HTTP request received.");
     response.end();
   }
 
@@ -25,7 +25,7 @@ function start(route, handlers) {
 
   wsServer = new WebSocketServer({
     httpServer: server,
-    autoAcceptConnections: false
+    autoAcceptConnections: false  // new request will trigger request event, and respond with request object that need to be accepted or rejected
   });
 
   function onWsConnMessage(message) {
@@ -41,17 +41,41 @@ function start(route, handlers) {
   }
 
   function onWsRequest(request) {
-    var connection = request.accept('echo-protocol', request.origin);
-    console.log("WebSocket connection accepted.");
+    var find = false
+    // Check if protocol is valid
+    request.requestedProtocols.map(function(protocol){
+      if (protocol == 'echo-protocol')
+        find = true;
+    });
+    if(find == true){
+      var connection = request.accept('echo-protocol', request.origin); // accept is needed since autoAcceptConnections: false
+      console.log("WebSocket connection accepted, host: "+ request.host+" , protocol: "+connection.protocol);
 
-    // Save clients (unlimited clients)
-    clients.push(connection);
+      // Save clients (unlimited clients)
+      clients.push(connection);
 
-    connection.on('message', onWsConnMessage);
-    connection.on('close', onWsConnClose);
+      connection.on('message', onWsConnMessage);
+      connection.on('close', onWsConnClose);
+    }
+    else{
+      request.reject();
+      console.log("WebSocket connection rejected, host: "+ request.host);
+    }
+  }
+
+  function onWsClose(closeReason,description){
+    console.log('Web socket server closing with reason: ' + reasonCode);
   }
 
   wsServer.on('request', onWsRequest);
+
+  // Nodejs event
+  process.on( 'SIGINT', function() {
+    console.log( "\ngracefully shutting down from  SIGINT (Crtl-C)" );
+    wsServer.on('close', onWsClose);
+    // some other closing procedures go here
+    process.exit();
+  })
 }
 
 // Export functions
